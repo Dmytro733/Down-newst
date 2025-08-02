@@ -2,28 +2,7 @@
   "article": [],
   "blog": [],
   "brand": [],
-  "collection": [
-    {
-      "key": "short_description_collection",
-      "namespace": "custom",
-      "name": "Short description of collection",
-      "description": "",
-      "type": {
-        "name": "multi_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "collection_ads",
-      "namespace": "custom",
-      "name": "Collection ADS",
-      "description": "",
-      "type": {
-        "name": "list.metaobject_reference",
-        "category": "REFERENCE"
-      }
-    }
-  ],
+  "collection": [],
   "company": [],
   "company_location": [],
   "location": [],
@@ -32,196 +11,37 @@
   "page": [],
   "product": [
     {
-      "key": "short_description",
-      "namespace": "custom",
-      "name": "Short description",
-      "description": "",
+      "key": "snowboard_length",
+      "namespace": "test_data",
+      "name": "Snowboard length",
+      "description": "The length of the snowboard",
       "type": {
-        "name": "rich_text_field",
-        "category": "TEXT"
+        "name": "dimension",
+        "category": "MEASUREMENT"
       }
     },
     {
-      "key": "short_desc_for_product_card",
-      "namespace": "custom",
-      "name": "Product card short description",
-      "description": "",
+      "key": "binding_mount",
+      "namespace": "test_data",
+      "name": "Snowboard binding mount",
+      "description": "The type of binding mount used on the snowboard",
       "type": {
         "name": "single_line_text_field",
         "category": "TEXT"
-      }
-    },
-    {
-      "key": "taste_testers_recommend",
-      "namespace": "custom",
-      "name": "Taste Testers Recommend",
-      "description": "",
-      "type": {
-        "name": "list.product_reference",
-        "category": "REFERENCE"
-      }
-    },
-    {
-      "key": "popup_nutrition_image",
-      "namespace": "custom",
-      "name": "Product Description Image for Popup",
-      "description": "",
-      "type": {
-        "name": "file_reference",
-        "category": "REFERENCE"
-      }
-    },
-    {
-      "key": "flavours",
-      "namespace": "custom",
-      "name": "Flavours",
-      "description": "",
-      "type": {
-        "name": "list.product_reference",
-        "category": "REFERENCE"
-      }
-    },
-    {
-      "key": "custom_product_name",
-      "namespace": "custom",
-      "name": "Custom product name",
-      "description": "",
-      "type": {
-        "name": "single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "out_of_stock_enabled",
-      "namespace": "custom",
-      "name": "Out of Stock enabled",
-      "description": "",
-      "type": {
-        "name": "boolean",
-        "category": "TRUE_FALSE"
-      }
-    },
-    {
-      "key": "link_to_other_bundle",
-      "namespace": "custom",
-      "name": "Link to other bundle",
-      "description": "",
-      "type": {
-        "name": "product_reference",
-        "category": "REFERENCE"
-      }
-    },
-    {
-      "key": "nutrition_image",
-      "namespace": "custom",
-      "name": "Nutrition image",
-      "description": "",
-      "type": {
-        "name": "file_reference",
-        "category": "REFERENCE"
-      }
-    },
-    {
-      "key": "quotes",
-      "namespace": "custom",
-      "name": "Quotes",
-      "description": "",
-      "type": {
-        "name": "single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "product_tab_1",
-      "namespace": "custom",
-      "name": "Product tab 1",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "product_tab_2",
-      "namespace": "custom",
-      "name": "Product tab 2",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "product_tab_3",
-      "namespace": "custom",
-      "name": "Product tab 3",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "product_tab_4",
-      "namespace": "custom",
-      "name": "Product tab 4",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "product_tab_5",
-      "namespace": "custom",
-      "name": "Product tab 5",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "product_tab_6",
-      "namespace": "custom",
-      "name": "Product tab 6",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "dietary_ingredients",
-      "namespace": "custom",
-      "name": "Dietary ingredients",
-      "description": "",
-      "type": {
-        "name": "list.single_line_text_field",
-        "category": "TEXT"
-      }
-    },
-    {
-      "key": "rating",
-      "namespace": "reviews",
-      "name": "Product rating",
-      "description": "Average rating from customers",
-      "type": {
-        "name": "rating",
-        "category": "RATING"
-      }
-    },
-    {
-      "key": "rating_count",
-      "namespace": "reviews",
-      "name": "Product rating count",
-      "description": "Total number of ratings from customers",
-      "type": {
-        "name": "number_integer",
-        "category": "NUMBER"
       }
     }
   ],
   "variant": [],
-  "shop": []
+  "shop": [
+    {
+      "key": "alpine_sports",
+      "namespace": "test_data",
+      "name": "Alpine sport types",
+      "description": "The set of alpine sports that this sport shop specializes in",
+      "type": {
+        "name": "list.single_line_text_field",
+        "category": "TEXT"
+      }
+    }
+  ]
 }

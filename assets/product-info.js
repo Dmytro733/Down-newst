@@ -13,8 +13,9 @@ if (!customElements.get('product-info')) {
 
       constructor() {
         super();
-
         this.quantityInput = this.querySelector('.quantity__input');
+        this.imageGroup = this.querySelector('[data-group]').dataset.group || undefined;
+        this.imageGroupNamespace = this.imageGroup.split('_')[0] || undefined;
       }
 
       connectedCallback() {
@@ -27,6 +28,24 @@ if (!customElements.get('product-info')) {
 
         this.initQuantityHandlers();
         this.dispatchEvent(new CustomEvent('product-info:loaded', { bubbles: true }));
+       
+        if (this.imageGroup) {
+          this.setImageGroup();
+        }
+      }
+
+      setImageGroup() {
+        const variant = this.getSelectedVariant(this);
+        this.imageGroup = variant.featured_media?.alt?.replace('#', '') || this.getGroupName(variant.title);
+
+        this.querySelectorAll('.product__media-item[data-group]').forEach((media) => {
+          media.classList.toggle('hidden', media.dataset.group === this.imageGroup);
+          media.classList.toggle('hidden', media.dataset.group !== this.imageGroup);
+        });
+      }
+
+      getGroupName(title) {
+        return `${this.imageGroupNamespace}_` + title.toLowerCase().replace(' ', '-');
       }
 
       addPreProcessCallback(callback) {
@@ -176,6 +195,9 @@ if (!customElements.get('product-info')) {
           }
 
           this.updateMedia(html, variant?.featured_media?.id);
+          if (this.imageGroup) {
+            this.setImageGroup();
+          }
 
           const updateSourceFromDestination = (id, shouldHide = (source) => false) => {
             const source = html.getElementById(`${id}-${this.sectionId}`);
@@ -252,6 +274,7 @@ if (!customElements.get('product-info')) {
           const sourceMap = new Map(
             mediaGallerySourceItems.map((item, index) => [item.dataset.mediaId, { item, index }])
           );
+
           return [mediaGallerySourceItems, sourceSet, sourceMap];
         };
 
