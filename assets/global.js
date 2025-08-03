@@ -730,31 +730,73 @@ class SliderComponent extends HTMLElement {
     super();
     this.slider = this.querySelector('[id^="Slider-"]');
     this.sliderItems = this.querySelectorAll('[id^="Slide-"]');
+    this.slidesPerPage = this.slider.dataset.slidesPerPage || 1;
     this.enableSliderLooping = false;
+    this.showArrows = this.slider.dataset.showArrows === 'true';
+    this.sliderControls = window.innerWidth > 749 ? this.querySelector('#slideshow-controls--desktop') || undefined : this.querySelector('#slideshow-controls--mobile') || undefined;
+    this.sliderControlsMobileEnabled = false;
+    this.sliderControlsDesktopEnabled = false;
+
+    if(this.sliderControls){
+      this.querySelector('.slideshow__controls .slider-counter').innerHTML = this.sliderControls.innerHTML
+      this.sliderControlsDesktopEnabled = window.innerWidth > 749;
+      this.sliderControlsMobileEnabled = window.innerWidth < 750;
+    }
+
+    if (!this.slider) return;
+
+    this.connectedCallbacks();
+
+    this.initPages();
+    const resizeObserver = new ResizeObserver((entries) => {
+      if(this.sliderControls){
+        if(window.innerWidth < 750 && this.sliderControlsDesktopEnabled){
+          this.sliderControlsDesktopEnabled = false;
+          this.sliderControlsMobileEnabled = true;
+          this.sliderControls = this.querySelector('#slideshow-controls--mobile').innerHTML;
+
+          this.dispatchEvent(new CustomEvent('sliderControls:update', {detail: {},}));
+        }
+        
+        if(window.innerWidth > 749 && this.sliderControlsMobileEnabled){
+          this.sliderControlsMobileEnabled = false;
+          this.sliderControlsDesktopEnabled = true;
+          this.sliderControls = this.querySelector('#slideshow-controls--desktop').innerHTML;
+
+          this.dispatchEvent(new CustomEvent('sliderControls:update', {detail: {},}));
+        }
+      }
+
+      this.initPages();
+    });
+    resizeObserver.observe(this.slider);
+
+    this.addEventListener('sliderControls:update', () => {
+      this.querySelector('.slideshow__controls .slider-counter').innerHTML = this.sliderControls;
+      this.connectedCallbacks();
+    });
+  }
+
+  connectedCallbacks() {
     this.currentPageElement = this.querySelector('.slider-counter--current');
     this.pageTotalElement = this.querySelector('.slider-counter--total');
     this.prevButton = this.querySelector('button[name="previous"]');
     this.nextButton = this.querySelector('button[name="next"]');
 
-    if (!this.slider || !this.nextButton) return;
-
-    this.initPages();
-    const resizeObserver = new ResizeObserver((entries) => this.initPages());
-    resizeObserver.observe(this.slider);
-
     this.slider.addEventListener('scroll', this.update.bind(this));
-    this.prevButton.addEventListener('click', this.onButtonClick.bind(this));
-    this.nextButton.addEventListener('click', this.onButtonClick.bind(this));
+
+    if (this.showArrows){
+      this.prevButton.addEventListener('click', this.onButtonClick.bind(this));
+      this.nextButton.addEventListener('click', this.onButtonClick.bind(this));
+    }
   }
 
   initPages() {
     this.sliderItemsToShow = Array.from(this.sliderItems).filter((element) => element.clientWidth > 0);
     if (this.sliderItemsToShow.length < 2) return;
     this.sliderItemOffset = this.sliderItemsToShow[1].offsetLeft - this.sliderItemsToShow[0].offsetLeft;
-    this.slidesPerPage = Math.floor(
-      (this.slider.clientWidth - this.sliderItemsToShow[0].offsetLeft) / this.sliderItemOffset
-    );
     this.totalPages = this.sliderItemsToShow.length - this.slidesPerPage + 1;
+
     this.update();
   }
 
@@ -766,7 +808,7 @@ class SliderComponent extends HTMLElement {
   update() {
     // Temporarily prevents unneeded updates resulting from variant changes
     // This should be refactored as part of https://github.com/Shopify/dawn/issues/2057
-    if (!this.slider || !this.nextButton) return;
+    if (!this.slider) return;
 
     const previousPage = this.currentPage;
     this.currentPage = Math.round(this.slider.scrollLeft / this.sliderItemOffset) + 1;
@@ -789,16 +831,18 @@ class SliderComponent extends HTMLElement {
 
     if (this.enableSliderLooping) return;
 
-    if (this.isSlideVisible(this.sliderItemsToShow[0]) && this.slider.scrollLeft === 0) {
-      this.prevButton.setAttribute('disabled', 'disabled');
-    } else {
-      this.prevButton.removeAttribute('disabled');
-    }
-
-    if (this.isSlideVisible(this.sliderItemsToShow[this.sliderItemsToShow.length - 1])) {
-      this.nextButton.setAttribute('disabled', 'disabled');
-    } else {
-      this.nextButton.removeAttribute('disabled');
+    if(this.showArrows){
+      if (this.isSlideVisible(this.sliderItemsToShow[0]) && this.slider.scrollLeft === 0) {
+        this.prevButton.setAttribute('disabled', 'disabled');
+      } else {
+        this.prevButton.removeAttribute('disabled');
+      }
+  
+      if (this.isSlideVisible(this.sliderItemsToShow[this.sliderItemsToShow.length - 1])) {
+        this.nextButton.setAttribute('disabled', 'disabled');
+      } else {
+        this.nextButton.removeAttribute('disabled');
+      }
     }
   }
 
@@ -810,10 +854,12 @@ class SliderComponent extends HTMLElement {
   onButtonClick(event) {
     event.preventDefault();
     const step = event.currentTarget.dataset.step || 1;
+
     this.slideScrollPosition =
       event.currentTarget.name === 'next'
         ? this.slider.scrollLeft + step * this.sliderItemOffset
         : this.slider.scrollLeft - step * this.sliderItemOffset;
+
     this.setSlidePosition(this.slideScrollPosition);
   }
 
@@ -835,6 +881,7 @@ class SlideshowComponent extends SliderComponent {
     if (!this.sliderControlWrapper) return;
 
     this.sliderFirstItemNode = this.slider.querySelector('.slideshow__slide');
+
     if (this.sliderItemsToShow.length > 0) this.currentPage = 1;
 
     this.announcementBarSlider = this.querySelector('.announcement-bar-slider');
@@ -846,6 +893,13 @@ class SlideshowComponent extends SliderComponent {
     this.slider.addEventListener('scroll', this.setSlideVisibility.bind(this));
     this.setSlideVisibility();
 
+    this.addEventListener('sliderControls:update', () => {
+      this.sliderControlWrapper = this.querySelector('.slider-buttons');
+      this.sliderControlLinksArray = Array.from(this.sliderControlWrapper.querySelectorAll('.slider-counter__link'));
+      this.sliderControlLinksArray.forEach((link) => link.addEventListener('click', this.linkToSlide.bind(this)));
+      this.slider.addEventListener('scroll', this.setSlideVisibility.bind(this));
+    });
+
     if (this.announcementBarSlider) {
       this.announcementBarArrowButtonWasClicked = false;
 
@@ -854,15 +908,18 @@ class SlideshowComponent extends SliderComponent {
         if (this.slider.getAttribute('data-autoplay') === 'true') this.setAutoPlay();
       });
 
-      [this.prevButton, this.nextButton].forEach((button) => {
-        button.addEventListener(
-          'click',
-          () => {
-            this.announcementBarArrowButtonWasClicked = true;
-          },
-          { once: true }
-        );
-      });
+      if(this.showArrows){
+        [this.prevButton, this.nextButton].forEach((button) => {
+          button.addEventListener(
+            'click',
+            () => {
+              this.announcementBarArrowButtonWasClicked = true;
+            },
+            { once: true }
+          );
+        });
+      }
+
     }
 
     if (this.slider.getAttribute('data-autoplay') === 'true') this.setAutoPlay();
@@ -911,6 +968,7 @@ class SlideshowComponent extends SliderComponent {
 
   setSlidePosition(position) {
     if (this.setPositionTimeout) clearTimeout(this.setPositionTimeout);
+
     this.setPositionTimeout = setTimeout(() => {
       this.slider.scrollTo({
         left: position,
@@ -921,7 +979,7 @@ class SlideshowComponent extends SliderComponent {
   update() {
     super.update();
     this.sliderControlButtons = this.querySelectorAll('.slider-counter__link');
-    this.prevButton.removeAttribute('disabled');
+    if(this.showArrows) this.prevButton.removeAttribute('disabled');
 
     if (!this.sliderControlButtons.length) return;
 
@@ -1050,7 +1108,7 @@ class SlideshowComponent extends SliderComponent {
     event.preventDefault();
     const slideScrollPosition =
       this.slider.scrollLeft +
-      this.sliderFirstItemNode.clientWidth *
+      this.sliderItemOffset *
         (this.sliderControlLinksArray.indexOf(event.currentTarget) + 1 - this.currentPage);
     this.slider.scrollTo({
       left: slideScrollPosition,
