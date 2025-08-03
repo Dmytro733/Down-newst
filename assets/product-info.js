@@ -14,8 +14,8 @@ if (!customElements.get('product-info')) {
       constructor() {
         super();
         this.quantityInput = this.querySelector('.quantity__input');
-        this.imageGroup = this.querySelector('[data-group]').dataset.group || undefined;
-        this.imageGroupNamespace = this.imageGroup.split('_')[0] || undefined;
+        this.imageGroup = this.querySelector('[data-group]')?.dataset.group || undefined;
+        this.imageGroupNamespace = this.imageGroup?.split('_')[0] || undefined;
       }
 
       connectedCallback() {
